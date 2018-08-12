@@ -17,6 +17,7 @@
 package org.gradle.testkit.runner.internal;
 
 import org.apache.commons.io.output.WriterOutputStream;
+import org.gradle.StartParameter;
 import org.gradle.api.Action;
 import org.gradle.internal.SystemProperties;
 import org.gradle.internal.classloader.ClasspathUtil;
@@ -51,6 +52,7 @@ public class DefaultGradleRunner extends GradleRunner {
     private OutputStream standardOutput;
     private OutputStream standardError;
     private boolean forwardingSystemStreams;
+    private final List<String> initScriptArguments;
 
     public DefaultGradleRunner() {
         this(new ToolingApiGradleExecutor(), calculateTestKitDirProvider(SystemProperties.getInstance()));
@@ -60,6 +62,14 @@ public class DefaultGradleRunner extends GradleRunner {
         this.gradleExecutor = gradleExecutor;
         this.testKitDirProvider = testKitDirProvider;
         this.debug = Boolean.getBoolean(DEBUG_SYS_PROP);
+        StartParameter defaultStartParameter = new StartParameter();
+        List<File> initScripts = defaultStartParameter.getAllInitScripts();
+        List<String> initScriptArgumentList  = new ArrayList<String>();
+        for(File initScript:defaultStartParameter.getAllInitScripts()) {
+            initScriptArgumentList.add("--init-script");
+            initScriptArgumentList.add(initScript.getAbsolutePath());
+        }
+        initScriptArguments = Collections.unmodifiableList(initScriptArgumentList);
     }
 
     private static TestKitDirProvider calculateTestKitDirProvider(SystemProperties systemProperties) {
@@ -122,7 +132,9 @@ public class DefaultGradleRunner extends GradleRunner {
 
     @Override
     public List<String> getArguments() {
-        return arguments;
+        List<String> allArguments = new ArrayList<String>(initScriptArguments);
+        allArguments.addAll(arguments);
+        return allArguments;
     }
 
     @Override
@@ -271,7 +283,7 @@ public class DefaultGradleRunner extends GradleRunner {
             effectiveDistribution,
             testKitDir,
             projectDirectory,
-            arguments,
+            getArguments(),
             jvmArguments,
             classpath,
             debug,
