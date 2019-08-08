@@ -67,7 +67,7 @@ gradle.buildFinished {
             "   * $key\n$value"
         }.joinToString("\n")
 
-        throw GradleException("This build used insecure repositories:\n${detail}\n\nMake sure to use HTTPS")
+        /* throw GradleException("This build used insecure repositories:\n${detail}\n\nMake sure to use HTTPS") */
     }
 }
 
