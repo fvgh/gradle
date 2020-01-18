@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":baseServices"))
     implementation(project(":coreApi"))
     implementation(project(":core"))
+    implementation(project(":logging"))
     implementation(project(":wrapper"))
     implementation(project(":toolingApi"))
     implementation(library("commons_io"))
